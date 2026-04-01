@@ -1,0 +1,62 @@
+section,name,value
+xgboost,n_estimators,500
+xgboost,max_depth,3
+xgboost,learning_rate,0.05
+xgboost,subsample,0.6
+xgboost,colsample_bytree,0.4
+xgboost,colsample_bylevel,0.6
+xgboost,reg_alpha,2.0
+xgboost,reg_lambda,10.0
+xgboost,gamma,3.0
+xgboost,min_child_weight,20
+xgboost,max_delta_step,1
+xgboost,early_stopping_rounds,20
+lightgbm,n_estimators,500
+lightgbm,max_depth,4
+lightgbm,learning_rate,0.05
+lightgbm,boosting_type,dart
+lightgbm,drop_rate,0.15
+lightgbm,subsample,0.65
+lightgbm,colsample_bytree,0.5
+lightgbm,reg_alpha,3.0
+lightgbm,reg_lambda,8.0
+lightgbm,min_child_weight,15
+lightgbm,min_child_samples,25
+lightgbm,num_leaves,15
+random_forest,n_estimators,500
+random_forest,max_depth,8
+random_forest,min_samples_leaf,20
+random_forest,min_samples_split,40
+random_forest,max_features,sqrt
+random_forest,bootstrap,True
+gnn,architecture,"ToxGNN (GIN+GAT hybrid, 3 layers, residual, LayerNorm, mean+add pool)"
+gnn,hidden,256
+gnn,heads,4
+gnn,dropout,0.5
+gnn,n_layers,3
+gnn,drop_edge_rate,0.2
+gnn,loss,"Label-smoothed Focal (gamma=2.0, alpha=0.25, smooth=0.05)"
+gnn,optimizer,AdamW
+gnn,lr,0.0005
+gnn,weight_decay,0.005
+gnn,scheduler,"ReduceLROnPlateau(factor=0.5, patience=8) → SWA(lr=1e-4)"
+gnn,swa_start,50
+gnn,use_swa,True
+gnn,gap_patience,15
+gnn,amp,False
+gnn,epochs,200
+gnn,patience,25
+gnn,gradient_clip,0.5
+ensemble,method,stacking (4 models → LogisticRegression per task) + weighted avg
+ensemble,base_models,"['XGBoost', 'LightGBM', 'RandomForest', 'ToxGNN']"
+ensemble,meta_learner,LogisticRegression(C=1.0)
+ensemble,weighted_avg,"{'gnn': np.float64(0.5), 'xgb': np.float64(0.0), 'lgb': np.float64(0.0), 'rf': np.float64(0.5)}"
+features,ecfp4_bits,2048
+features,rdkit_descriptors,52
+features,zinc_properties,"['zinc_logP', 'zinc_qed', 'zinc_sas']"
+features,total_dim,2103
+data,dataset,Tox21 + ZINC250k
+data,split,Murcko scaffold 80/10/10
+data,train,6258
+data,val,782
+data,test,783

@@ -1,0 +1,105 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import "tailwindcss";
+
+/* ── Design tokens ─────────────────────────────────────── */
+:root {
+  --primary: #818cf8;
+  --secondary: #a855f7;
+  --bg: #070d1f;
+  --surface: #0c1326;
+  --surface-raised: #11192e;
+  --surface-high: #171f36;
+  --outline: rgba(255, 255, 255, 0.07);
+  --text: #dfe4fe;
+  --muted: #4b5563;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* ── Subtle noise texture ───────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.018;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(129,140,248,0.2); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(129,140,248,0.45); }
+
+input, textarea, select { font-family: inherit; outline: none; }
+input::placeholder { color: var(--muted); }
+
+/* ── Glass card ─────────────────────────────────────────── */
+.glass {
+  background: rgba(7, 13, 31, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid var(--outline);
+}
+
+/* ── Shimmer skeleton ───────────────────────────────────── */
+.shimmer {
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.03) 0%,
+    rgba(255,255,255,0.07) 50%,
+    rgba(255,255,255,0.03) 100%);
+  background-size: 1000px 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+@keyframes shimmer {
+  0%   { background-position: -1000px 0; }
+  100% { background-position:  1000px 0; }
+}
+
+/* ── Entry animations ───────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.fade-up  { animation: fadeUp  0.45s ease-out both; }
+.scale-in { animation: scaleIn 0.3s  ease-out both; }
+.d1 { animation-delay: 0.05s; }
+.d2 { animation-delay: 0.12s; }
+.d3 { animation-delay: 0.19s; }
+.d4 { animation-delay: 0.26s; }
+.d5 { animation-delay: 0.33s; }
+.d6 { animation-delay: 0.40s; }
+
+/* ── Monospace ──────────────────────────────────────────── */
+.mono { font-family: 'JetBrains Mono', monospace; }
+.font-display { font-family: 'Space Grotesk', sans-serif; }
+
+/* ── Hover table row ────────────────────────────────────── */
+.tox-row { transition: background 0.12s ease; }
+.tox-row:hover { background: rgba(129,140,248,0.04); }
+
+/* ── Prose link ─────────────────────────────────────────── */
+a { color: var(--primary); text-decoration: none; }
+a:hover { opacity: 0.85; }
