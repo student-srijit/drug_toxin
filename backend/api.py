@@ -362,23 +362,42 @@ if HAS_TRANSFORMERS:
 # ══════════════════════════════════════════════════════════════
 # Feature computation
 # ══════════════════════════════════════════════════════════════
-DESC_NAMES = [n for n, _ in Descriptors.descList[:52]]
-
+DESC_NAMES = [
+    'MolWt', 'MolLogP', 'MolMR', 'TPSA', 'NumHDonors', 'NumHAcceptors',
+    'NumRotatableBonds', 'NumAromaticRings', 'NumAliphaticRings',
+    'NumSaturatedRings', 'NumHeteroatoms', 'FractionCSP3',
+    'RingCount', 'HeavyAtomCount', 'NumRadicalElectrons',
+    'BalabanJ', 'BertzCT', 'Chi0', 'Chi1', 'Chi2n', 'Chi3n', 'Chi4n',
+    'Kappa1', 'Kappa2', 'Kappa3',
+    'MaxAbsEStateIndex', 'MinAbsEStateIndex', 'MaxEStateIndex', 'MinEStateIndex',
+    'PEOE_VSA1', 'PEOE_VSA2', 'PEOE_VSA3', 'PEOE_VSA6', 'PEOE_VSA10',
+    'fr_NH0', 'fr_NH1', 'fr_NH2', 'fr_Ar_N', 'fr_Ar_OH', 'fr_C_O',
+    'fr_C_O_noCOO', 'fr_COO', 'fr_COO2', 'fr_hdrzone', 'fr_nitro',
+    'fr_nitro_arom', 'fr_nitroso', 'fr_epoxide', 'fr_sulfonamd',
+    'fr_sulfone', 'fr_aldehyde', 'fr_alkyl_halide',
+]
 
 def build_features(mol, scaler):
     fp = np.zeros(2048, dtype=np.float32)
     DataStructs.ConvertToNumpyArray(
         AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=2048), fp)
-    desc = np.array([
-        float(v) if v is not None else 0.0
-        for v in (Descriptors.CalcMolDescriptors(mol).get(n, 0) for n in DESC_NAMES)
-    ], dtype=np.float32)
-    zinc = np.zeros(3, dtype=np.float32)
-    feats = np.concatenate([fp, desc, zinc])[np.newaxis, :]
-    feats = np.nan_to_num(feats, nan=0.0, posinf=10.0, neginf=-10.0).astype(np.float32)
-    # Scale descriptor+zinc columns (2048:) to match training pipeline
-    feats[:, 2048:] = scaler.transform(feats[:, 2048:])
-    return feats
+    
+    desc_vals = []
+    for name in DESC_NAMES:
+        try:
+            fn = getattr(Descriptors, name, None) or getattr(rdMolDescriptors, name, None)
+            v = fn(mol) if fn else 0.0
+            desc_vals.append(float(v) if v is not None else 0.0)
+        except:
+            desc_vals.append(0.0)
+            
+    desc = np.array(desc_vals, dtype=np.float32)
+    # The new scaler on disk expects exactly 52 descriptors
+    desc_scaled = scaler.transform(desc.reshape(1, -1))[0]
+    
+    # We no longer need the 'zinc' padding as the new models match the 52-descriptor set (2100 total)
+    feats = np.concatenate([fp, desc_scaled])[np.newaxis, :]
+    return np.nan_to_num(feats, nan=0.0, posinf=10.0, neginf=-10.0).astype(np.float32)
 
 
 # ══════════════════════════════════════════════════════════════
@@ -386,10 +405,11 @@ def build_features(mol, scaler):
 # ══════════════════════════════════════════════════════════════
 def load_models():
     device = torch.device("cpu")
-    xgb = joblib.load(MODELS_DIR / "xgboost" / "xgb_models.pkl")
-    lgb = joblib.load(MODELS_DIR / "lightgbm" / "lgb_models.pkl")
-    rf  = joblib.load(MODELS_DIR / "randomforest" / "rf_models.pkl")
-    meta = joblib.load(MODELS_DIR / "ensemble" / "meta_models.pkl")
+    # UPDATED: Using the fresh 'Fast' models and the Meta-Learner rescuer
+    xgb = joblib.load(MODELS_DIR / "xgboost" / "xgb_models_final.pkl")
+    lgb = joblib.load(MODELS_DIR / "lightgbm" / "lgb_models_new.pkl")
+    rf  = joblib.load(MODELS_DIR / "randomforest" / "rf_models_new.pkl")
+    meta = joblib.load(MODELS_DIR / "ensemble" / "meta_learner_v2.pkl")
     scaler = joblib.load(MODELS_DIR / "descriptor_scaler.pkl")
 
     gnn = None
@@ -504,11 +524,15 @@ def predict_single(smiles, models):
         gp = gnn_probs.get(t, 0.5)
         cp = cb_probs.get(t, 0.5)
 
-        # Simple average ensemble
-        if has_cb:
-            prob = (xp + lp + rp + gp + cp) / 5.0
+        # STACKED ENSEMBLE (Logistic Regression Meta-Learner)
+        # We pass the 3 base model predictions (XGB, LGB, RF) to the meta-model
+        if t in models["meta"]:
+            meta_input = np.column_stack([xp, lp, rp])
+            prob = float(models["meta"][t].predict_proba(meta_input)[:, 1][0])
         else:
+            # Fallback if meta-model is missing for a task
             prob = (xp + lp + rp + gp) / 4.0
+            
         risk = "HIGH" if prob > RISK_HIGH else "MEDIUM" if prob > RISK_MED else "LOW"
         row = {
             "Task": t, "Ensemble": round(prob, 4), "Risk": risk,

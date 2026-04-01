@@ -1,0 +1,101 @@
+{
+  "models": {
+    "xgboost": "/Users/anubhabrakshit/Projects/Hackathon/drug_toxin-main/models/xgboost/xgb_models_final.pkl",
+    "lightgbm": "/Users/anubhabrakshit/Projects/Hackathon/drug_toxin-main/models/lightgbm/lgb_models_new.pkl",
+    "randomforest": "/Users/anubhabrakshit/Projects/Hackathon/drug_toxin-main/models/randomforest/rf_models_new.pkl",
+    "meta": "/Users/anubhabrakshit/Projects/Hackathon/drug_toxin-main/models/ensemble/meta_learner_v2.pkl",
+    "scaler": "/Users/anubhabrakshit/Projects/Hackathon/drug_toxin-main/models/descriptor_scaler.pkl"
+  },
+  "test_metrics": [
+    {
+      "task": "NR-AR",
+      "xgboost": 0.7552033301312839,
+      "lightgbm": 0.728946525776497,
+      "randomforest": 0.7842352438894226,
+      "stacked": 0.7472515743409115
+    },
+    {
+      "task": "NR-AR-LBD",
+      "xgboost": 0.8147726464100191,
+      "lightgbm": 0.8227424749163879,
+      "randomforest": 0.8959652743186508,
+      "stacked": 0.8534832420123816
+    },
+    {
+      "task": "NR-AhR",
+      "xgboost": 0.8675121208478582,
+      "lightgbm": 0.8382217413951998,
+      "randomforest": 0.8363785711423649,
+      "stacked": 0.8602796810514085
+    },
+    {
+      "task": "NR-Aromatase",
+      "xgboost": 0.7327197595792636,
+      "lightgbm": 0.727507513148009,
+      "randomforest": 0.7444120961682945,
+      "stacked": 0.7501878287002254
+    },
+    {
+      "task": "NR-ER",
+      "xgboost": 0.7329424307036249,
+      "lightgbm": 0.7401462077368262,
+      "randomforest": 0.8063965884861407,
+      "stacked": 0.7208041425525433
+    },
+    {
+      "task": "NR-ER-LBD",
+      "xgboost": 0.773249211356467,
+      "lightgbm": 0.7867507886435331,
+      "randomforest": 0.7632807570977918,
+      "stacked": 0.7936277602523659
+    },
+    {
+      "task": "NR-PPAR-gamma",
+      "xgboost": 0.7766218387888015,
+      "lightgbm": 0.6888268628943585,
+      "randomforest": 0.7487101412501057,
+      "stacked": 0.7846570244438805
+    },
+    {
+      "task": "SR-ARE",
+      "xgboost": 0.7684347885808476,
+      "lightgbm": 0.7358119090680159,
+      "randomforest": 0.6862022389597308,
+      "stacked": 0.7574689224147797
+    },
+    {
+      "task": "SR-ATAD5",
+      "xgboost": 0.7492452657579362,
+      "lightgbm": 0.7163571493916384,
+      "randomforest": 0.671210319275455,
+      "stacked": 0.7425212697831856
+    },
+    {
+      "task": "SR-HSE",
+      "xgboost": 0.7987436386768448,
+      "lightgbm": 0.7485687022900763,
+      "randomforest": 0.7498012086513995,
+      "stacked": 0.7870149491094148
+    },
+    {
+      "task": "SR-MMP",
+      "xgboost": 0.8826729598807601,
+      "lightgbm": 0.8584772078002733,
+      "randomforest": 0.8760650850825984,
+      "stacked": 0.8675692460563905
+    },
+    {
+      "task": "SR-p53",
+      "xgboost": 0.8097708813189478,
+      "lightgbm": 0.7515820099405988,
+      "randomforest": 0.7708328282216026,
+      "stacked": 0.791150442477876
+    }
+  ],
+  "mean_aucs": {
+    "xgboost": 0.7884907393360544,
+    "lightgbm": 0.7619949244167845,
+    "randomforest": 0.7777908627119632,
+    "stacked": 0.7880013402662803
+  }
+}
